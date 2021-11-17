@@ -1,0 +1,6 @@
+/.editorconfig
+/.env
+/mails.db
+/node_modules
+/package-lock.json
+/toribot-service-account.json

@@ -7,33 +7,15 @@ const DB = {
 	init: function(callback) {
 		DB.Database = new Loki(process.env.MAIL_DATABASE, {
 			autoload: true,
-			autoloadCallback: this.databaseInitialize,
-			verbose:true,
 			autosave: false,
-			autosaveInterval: 4000,
-			autosaveCallback: () => {
-				console.log('autosaved db');
-			}
+			autoloadCallback: this.databaseInitialize,
 		});
 
 		this.Database.on('loaded', () => {
 			callback();
 		})
-		this.Database.on('init', () => {
-			console.log("Database: Init.")
-		})
-		DB.Database.on('flushChanges', () => {
-			console.log("Database Flush.")
-		})
-
-		DB.Database.on('changes', () => {
-			console.log("Database Change.")
-		})
-		DB.Database.on('warning', () => {
-			console.log("Database WARNING.")
-		})
 		process.on('SIGINT', function () {
-			console.log("Flushing database.");
+			console.log("Saving database and exitting...");
 			DB.Database.close();
 			process.exit();
 		});

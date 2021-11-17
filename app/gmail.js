@@ -7,10 +7,12 @@ import path from 'path'
 const __dirname = cwd();
 
 const defaultOpts = {
-	subjectToSave: "Uusia ilmoituksia hakuvahdissa",		// SAVE MAIL TO DATABASE IF MAIL HAVE THIS SUBJECT
 	token_path: "<INSERT TOKEN PATH HERE>",					// FILE TO SAVE AUTH TOKEN
 	credentials: "<INSERT CLIENT SECRETS JSON PATH HERE>",	// FILE FROM GOOGLE API SERVICE ACCOUNTS
-	subject: "<INSERT TARGET EMAIL WHERE READ MAILS>",		// EMAIL SUBJECT TO TRIGGER DISCORD BOT
+	triggers: [{
+		subject: "Uusia ilmoituksia hakuvahdissa",		// EMAIL SUBJECT TO TRIGGER DISCORD BOT & SAVING MESSAGE ID TO DATABASE
+
+	}],
 	scopes: ['https://mail.google.com/', 'https://www.googleapis.com/auth/gmail.readonly'],
 	database: undefined
 }
@@ -38,7 +40,6 @@ function ClientRequest(client, opts) {
 	return client.request(opts);
 }
 
-
 class Message {
 	constructor(client, msg, index) {
 
@@ -52,7 +53,6 @@ class Message {
 		this.contentHtml 	= undefined;
 		this.subject 		= undefined;
 		this.sender 		= undefined;
-
 
 		this.parseData()
 	}
@@ -102,18 +102,20 @@ class Message {
 	}
 }
 
+
 class GMail {
 	constructor(opts) {
+
 		console.log("[MailDaemon]: Initializing.")
 		this.options 		= Object.assign(defaultOpts, opts)
-		this.messages 		= [];
-		this.messageCount 	= 0;
+		this.messages 		= []
+		this.messageCount 	= 0
 
 		this.authenticate()
 
 		if (this.options.database != undefined) {
-			console.log("[MailDaemon]: Database set.")
 			this.db = this.options.database
+			console.log("[MailDaemon]: Database set.")
 		}
 	}
 
@@ -136,31 +138,38 @@ class GMail {
 		console.log("[MailDaemon]: Authenticated successfully.")
 	}
 	async getMessages() {
-		//console.log("[MailDaemon]: Getting Messages.")
-
 		const _self = this;
-		_self.messages = [] // clear old message
+		_self.messages = [] // CLEAR OLD MESSAGES
 
-		const msgList = await this.client.request({ url: ApiUrl.message.list }) // get ids for messages
-		const data 	= await msgList;
+		const msgList 	= await this.client.request({ url: ApiUrl.message.list }) // GET IDS FOR MESSAGES
+		const data 		= await msgList;
 
 		let promises = []
 
 		if (data.status == 200) {
 			data.data.messages.forEach((msg) => {
-				promises.push(ClientRequest(_self.client, { url: ApiUrl.message.get + msg.id }))
+				promises.push(ClientRequest(_self.client, { url: ApiUrl.message.get + msg.id })) // GET MESSAGE BODY DATA
 			})
 
-			const order = await Promise.all(promises)
-			order.forEach((msg, index) => {
-				let message = new Message(_self.client, msg.data, index)
-				if (message.subject == _self.options.subjectToSave) {
-					_self.messages.push(message);
-				}
-			})
+			const messages = await Promise.all(promises)
 
+			_self.parseTriggers(messages);
 			return _self.messages;
 		}
+
+	}
+	parseTriggers(messages) {
+		const _self = this
+		messages.forEach((msg, index) => {
+			let message = new Message(_self.client, msg.data, index)
+			_self.options.triggers.forEach((trigger) => {
+				if (trigger.subject) {
+					if (message.subject == trigger.subject) {
+						_self.messages.push(message);
+					}
+				}
+			})
+		})
 
 	}
 

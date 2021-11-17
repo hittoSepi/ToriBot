@@ -3,7 +3,7 @@
 import  ConsoleStamp  	from 'console-stamp'
 import { Discord } 		from './app/discord.js'
 import { GMail } 		from './app/gmail.js'
-import { DB } 			from './app/db.js'
+import { DB } 			from './app/mailDB.js'
 import dotenv 			from 'dotenv'
 import jsdom 			from "jsdom"
 
@@ -31,18 +31,23 @@ const StartDiscordBot = async () => {
 	bot.connect();
 }
 
+const MinutesToMillisecond = (minutes) => {
+	return 60 * minutes * 1000;
+}
+
 const StartMailDaemon = async () => {
 
 	mail = new GMail({
 		token_path: process.env.GMAIL_TOKEN_FILE,	// FILE TO SAVE AUTH TOKEN
-		credentials: process.env.GMAIL_ACCESS_FILE,	// FILE FROM GOOGLE API SERVICE ACCOUNTS
+		credentials: process.env.GMAIL_SERVICE_ACCOUNT_FILE,	// FILE FROM GOOGLE API SERVICE ACCOUNTS
 		subject: process.env.GMAIL_EMAIL,
 		database: DB
 	})
-
+	const interval = process.env.GMAIL_CHECK_INTERVAL_MINUTES
+	console.log(`[MailDaemon]: Checking mail every ${interval} minutes.`)
 	setInterval(async () => {
 		await GetMail();
-	}, 5*60000)
+	}, MinutesToMillisecond(interval))
 
 	await GetMail();
 

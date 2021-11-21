@@ -1,16 +1,60 @@
-import { Client, Intents } from 'discord.js';
+/*global process*/
+
+import { Client, Intents, Constants } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9'
+import { StatsApi } from './../app/statsApi.js'
+
+import dotenv from 'dotenv'
+dotenv.config();
 
 
+const EthStats = new StatsApi(process.env.CPYPTOCOMPARE_API, "ETH", "EUR")
 
 const defaultDiscordOpts = {
 	token: "<INSERT BOT TOKEN HERE>", 		// Discord bot token
 	clientID: "<INSERT CLIENT ID HERE>",	// Discord client id
 	channels: [],
+	connectedCallback: function() {},
 	commands: [{
-		name: 'latest',
-		description: 'Näyttää viimeisin myytävä'
+		name: 'profit',
+		type: 1,
+		description: 'Laskee ETH tuoton megahasheille.\nKäyttö: /profit <mh/s>',
+		options: [
+			{
+				name: "mhs",
+				description: "Megahäshien määrä.",
+				type: 4,
+				required: true
+			},
+			{
+				name: "aika",
+				description: "Tuoton aikaväli",
+				type: 3,
+				required: false,
+				choices: [
+					{
+						name: "Minuutti",
+						value: "min",
+					},{
+						name: "Tunti",
+						value: "hour",
+					}, {
+						name: "Päivä",
+						value: "day",
+					}, {
+						name: "Viikko",
+						value: "week",
+					}, {
+						name: "Kuukausi",
+						value: "month",
+					}, {
+						name: "Vuosi",
+						value: "year",
+					}
+				]
+			}
+		]
 	}]
 }
 
@@ -68,23 +112,9 @@ class Discord {
 
 	updateServerList() {
 		const _self = this;
-		//let servertext = "[Discord]: Servers:\n\n";
 		this.client.guilds.cache.forEach(server => {
 			_self.servers.push(new Server(server))
-			//servertext += '\t\t  Server: ' + server.name + "\t(id: " + server.id + ")\n"
-			//servertext += _self.listChannels(server)
 		});
-		//console.log(servertext)
-	}
-
-	listChannels(server) {
-		let channeltext = "\t\t  Channels:\n"
-		server.channels.cache.forEach((channel) => {
-			if (channel.type == 'GUILD_TEXT')
-				channeltext += "\t\t\t" + channel.type + " " + channel.name + "\t(id: " + channel.id + ")\n"
-		})
-		return channeltext;
-		//console.log(channeltext)
 	}
 
 	shoutGPU(gpu) {
@@ -102,16 +132,29 @@ class Discord {
 	connect() {
 		console.log("[Discord]: Connecting...")
 		const that = this;
-		this.client.on('ready', () => {
+		this.client.on('ready', async () => {
 			console.log(`[Discord]: Logged in as ${that.client.user.tag}!`);
-			that.updateServerList()
+			await that.init()
+			await that.updateServerList()
+			that.options.connectedCallback();
 		});
 
 		this.client.on('interactionCreate', async interaction => {
 			if (!interaction.isCommand()) return;
 
-			if (interaction.commandName === 'ping') {
-				await interaction.reply('Pong!');
+			if (interaction.commandName === 'profit') {
+				let results = {};
+				console.log(interaction.options)
+				const profit = await EthStats.CalculateEthProfit(interaction.options._hoistedOptions[0].value)
+				if (interaction.options._hoistedOptions.length > 1) {
+					var time = interaction.options._hoistedOptions[1].value
+					results['EUR'] = profit['EUR'][time]
+					results['ETH'] = profit['ETH'][time]
+				}
+				else {
+					results = profit
+				}
+				await interaction.reply(JSON.stringify(results));
 			}
 		});
 

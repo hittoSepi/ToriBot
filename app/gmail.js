@@ -7,8 +7,7 @@ import path from 'path'
 const __dirname = cwd();
 
 const defaultOpts = {
-	token_path: "<INSERT TOKEN PATH HERE>",					// FILE TO SAVE AUTH TOKEN
-	credentials: "<INSERT CLIENT SECRETS JSON PATH HERE>",	// FILE FROM GOOGLE API SERVICE ACCOUNTS
+	credentials: "<SERVICE ACCOUNT FILE>",	// FILE FROM GOOGLE API SERVICE ACCOUNTS
 	triggers: [{
 		subject: "Uusia ilmoituksia hakuvahdissa",		// EMAIL SUBJECT TO TRIGGER DISCORD BOT & SAVING MESSAGE ID TO DATABASE
 

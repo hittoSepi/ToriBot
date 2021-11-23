@@ -7,18 +7,13 @@ const DB = {
 	init: function(callback) {
 		DB.Database = new Loki(process.env.MAIL_DATABASE, {
 			autoload: true,
-			autosave: false,
+			autosave: true,
 			autoloadCallback: this.databaseInitialize,
 		});
 
 		this.Database.on('loaded', () => {
 			callback();
 		})
-		process.on('SIGINT', function () {
-			console.log("Saving database and exitting...");
-			DB.Database.close();
-			process.exit();
-		});
 
 	},
 	databaseInitialize: function () {
@@ -32,6 +27,11 @@ const DB = {
 	},
 	insert: function(collection, data) {
 		return DB.Database.getCollection(collection).insert(data);
+	},
+	close: function () {
+
+		console.log("MailDB close")
+		DB.Database.close();
 	}
 }
 

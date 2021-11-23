@@ -124,7 +124,17 @@ class Discord {
 			const guildID 	= "909912248724631602";
 			const guild 	= this.client.guilds.cache.get(guildID)
 			if (guild) {
-				guild.channels.cache.get("909912248724631605").send("TORISSA UUSI GPU: " + gpu.name)
+				guild.channels.cache.get("909912248724631605").send("Uusi GPU: " + gpu.name)
+			}
+		}
+	}
+
+	shoutIotechTarjous(offer) {
+		if (this.client) {
+			const guildID = "909912248724631602";
+			const guild = this.client.guilds.cache.get(guildID)
+			if (guild) {
+				guild.channels.cache.get("912717478931607643").send("Tarjous: " + offer.name + "\n" + offer.href)
 			}
 		}
 	}

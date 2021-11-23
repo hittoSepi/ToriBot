@@ -3,7 +3,9 @@
 import  ConsoleStamp  	from 'console-stamp'
 import { Discord } 		from './app/discord.js'
 import { GMail } 		from './app/gmail.js'
-import { DB } 			from './app/mailDB.js'
+import { DB } from './app/mailDB.js'
+import { Iotech, IotechDatabase } from './app/iotech.js'
+
 import jsdom 			from "jsdom"
 
 import dotenv 			from 'dotenv'
@@ -87,14 +89,48 @@ async function GetMail() {
 		console.log(`[MailDaemon]: Found ${newEntrys} messages.`)
 
 }
+
+
+async function StartIotechDaemon() {
+
+
+	Iotech.newEntryCallback = function (offerData) {
+		bot.shoutIotechTarjous(offerData)
+	}
+
+	await Iotech.initialize(async () => {
+		console.log("iotech ready.")
+
+		setInterval(async () => {
+			await Iotech.blackfriday_tarjoukset()
+		}, MinutesToMillisecond(1))
+
+		await Iotech.blackfriday_tarjoukset()
+	})
+}
+
 async function main() {
 
+
+
 	InitializeDatabase(async () => {
-		StartDiscordBot(() => {
-			StartMailDaemon();
+		StartDiscordBot(async () => {
+			await StartMailDaemon();
+			await StartIotechDaemon();
+
+			process.on('SIGINT', function () {
+				DB.close();
+				Iotech.close();
+				IotechDatabase.close();
+				console.log("cleanup done.")
+				process.exit();
+			});
+
 		});
 	});
 
 }
 
+//StartIotechDaemon()
 main()
+

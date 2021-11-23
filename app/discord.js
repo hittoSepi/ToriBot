@@ -32,14 +32,16 @@ const defaultDiscordOpts = {
 				name: "aika",
 				description: "Tuoton aikaväli",
 				type: 3,
-				required: false,
+				required: true,
 				choices: [
 					{
 						name: "Minuutti",
 						value: "min",
+
 					},{
 						name: "Tunti",
 						value: "hour",
+
 					}, {
 						name: "Päivä",
 						value: "day",
@@ -73,6 +75,35 @@ const createEmbedMessage = (data) => {
 	.setDescription(desc)
 	.setImage(data.image)
 	.setTimestamp()
+}
+
+
+
+const timespanToString = (timespan) => {
+	switch (timespan) {
+		case 'min':
+			return 'minuutin'
+		case 'hour':
+			return 'tunnin'
+		case 'day':
+			return 'päivän'
+		case 'week':
+			return 'viikon'
+		case 'month':
+			return 'kuukauden'
+		case 'year':
+			return 'vuoden'
+	}
+}
+
+const createProfitMessage = (data) => {
+	return new MessageEmbed().setColor('#037f55')
+		.setTitle("Etherium tuotto")
+		.setDescription(`${data.mhs}MH/s tuotto ${timespanToString(data.timespan)} ajalle.`)
+		.addFields(
+			{ name: "ETH", value: data['ETH'].toFixed(5).toString() + " ETH", inline: true },
+			{ name: "EUR", value: data['EUR'].toFixed(2).toString() + " €", inline: true }
+		)
 }
 
 class Server {
@@ -190,18 +221,24 @@ class Discord {
 			if (!interaction.isCommand()) return;
 
 			if (interaction.commandName === 'profit') {
-				let results = {};
 
-				const profit = await EthStats.CalculateEthProfit(interaction.options._hoistedOptions[0].value)
+				const mhs = interaction.options._hoistedOptions[0].value
+				let results = { mhs: mhs, timespan: "" };
+				const profit = await EthStats.CalculateEthProfit(mhs)
 				if (interaction.options._hoistedOptions.length > 1) {
 					var time = interaction.options._hoistedOptions[1].value
+
 					results['EUR'] = profit['EUR'][time]
 					results['ETH'] = profit['ETH'][time]
+					results['timespan'] = time
 				}
 				else {
 					results = profit
+					results['mhs'] = mhs
 				}
-				await interaction.reply(JSON.stringify(results));
+				//JSON.stringify(results)
+				const profitEmbed = createProfitMessage(results)
+				await interaction.reply({embeds:[profitEmbed]} );
 			}
 		});
 

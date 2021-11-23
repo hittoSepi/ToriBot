@@ -1,6 +1,6 @@
 /*global process*/
 
-import { Client, Intents, Constants } from 'discord.js';
+import { Client, Intents, Constants, MessageEmbed } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9'
 import { StatsApi } from './../app/statsApi.js'
@@ -8,6 +8,7 @@ import { StatsApi } from './../app/statsApi.js'
 import dotenv from 'dotenv'
 dotenv.config();
 
+const dev = true
 
 const EthStats = new StatsApi(process.env.CPYPTOCOMPARE_API, "ETH", "EUR")
 
@@ -56,6 +57,16 @@ const defaultDiscordOpts = {
 			}
 		]
 	}]
+}
+
+
+const createEmbedMessage = (data) => {
+	return new MessageEmbed().setColor('#f94f55')
+	.setTitle(data.name)
+	.setURL(data.url)
+		.setThumbnail('https://d11vpufrumhcpn.cloudfront.net/img/tori_logo.png')
+	.setImage(data.image)
+	.setTimestamp()
 }
 
 class Server {
@@ -121,20 +132,39 @@ class Discord {
 		console.log("[Discord]: New GPU:", gpu)
 
 		if (this.client) {
-			const guildID 	= "909912248724631602";
-			const guild 	= this.client.guilds.cache.get(guildID)
-			if (guild) {
-				guild.channels.cache.get("909912248724631605").send("Uusi GPU: " + gpu.name)
+			if (!dev) {
+				const guildID = "909912248724631602";
+				const guild = this.client.guilds.cache.get(guildID)
+				if (guild) {
+					guild.channels.cache.get("909912248724631605").send("Uusi GPU: " + gpu.name)
+				}
+			}
+			else {
+				const guildID = "624618019938762752";
+				const guild = this.client.guilds.cache.get(guildID)
+				if (guild) {
+					const embed = createEmbedMessage(gpu)
+					guild.channels.cache.get("624618020458725386").send({embeds: [embed]})
+				}
 			}
 		}
 	}
 
 	shoutIotechTarjous(offer) {
 		if (this.client) {
-			const guildID = "909912248724631602";
-			const guild = this.client.guilds.cache.get(guildID)
-			if (guild) {
-				guild.channels.cache.get("912717478931607643").send("Tarjous: " + offer.name + "\n" + offer.href)
+			if (!dev) {
+				const guildID = "909912248724631602";
+				const guild = this.client.guilds.cache.get(guildID)
+				if (guild) {
+					guild.channels.cache.get("912717478931607643").send("Tarjous: " + offer.name + "\n" + offer.href)
+				}
+			}
+			else {
+				const guildID = "624618019938762752";
+				const guild = this.client.guilds.cache.get(guildID)
+				if (guild) {
+					guild.channels.cache.get("624618020458725386").send("Tarjous: " + offer.name + "\n" + offer.href)
+				}
 			}
 		}
 	}

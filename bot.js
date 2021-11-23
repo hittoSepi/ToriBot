@@ -5,10 +5,9 @@ import { Discord } 		from './app/discord.js'
 import { GMail } 		from './app/gmail.js'
 import { DB } from './app/mailDB.js'
 import { Iotech, IotechDatabase } from './app/iotech.js'
-
 import jsdom 			from "jsdom"
+import dotenv from 'dotenv'
 
-import dotenv 			from 'dotenv'
 dotenv.config();
 
 
@@ -70,15 +69,20 @@ async function GetMail() {
 
 			const frag = JSDOM.fragment(msg.getContent(true));
 			const imageElements = frag.querySelectorAll("td > a > img")
+			const linkElements = frag.querySelectorAll("tr > td > a")
 
-			let gpu = { name: "", url: "" }
+			const url = linkElements[0].href.split('?')[0]
+
+			let gpu = { name: "", url: url, image: "" }
 
 			imageElements.forEach((elem, idx) => {
-				console.log(idx, elem.title)
 				gpu.name = elem.title;
+				gpu.image = elem.src
 			})
+
 			newEntrys++;
 			bot.shoutGPU(gpu)
+
 			DB.insert('mails', { id: msg.id })
 			DB.Database.saveDatabase();
 
@@ -111,13 +115,10 @@ async function StartIotechDaemon() {
 
 async function main() {
 
-
-
 	InitializeDatabase(async () => {
 		StartDiscordBot(async () => {
 			await StartMailDaemon();
 			await StartIotechDaemon();
-
 			process.on('SIGINT', function () {
 				DB.close();
 				Iotech.close();
@@ -131,6 +132,5 @@ async function main() {
 
 }
 
-//StartIotechDaemon()
 main()
 

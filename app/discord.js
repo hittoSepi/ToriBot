@@ -138,7 +138,8 @@ class Discord {
 				const guildID = "909912248724631602";
 				const guild = this.client.guilds.cache.get(guildID)
 				if (guild) {
-					guild.channels.cache.get("909912248724631605").send("Uusi GPU: " + gpu.name)
+					const embed = createEmbedMessage(gpu)
+					guild.channels.cache.get("909912248724631605").send({ embeds: [embed] })
 				}
 			}
 			else {

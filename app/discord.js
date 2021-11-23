@@ -191,7 +191,7 @@ class Discord {
 
 			if (interaction.commandName === 'profit') {
 				let results = {};
-				console.log(interaction.options)
+
 				const profit = await EthStats.CalculateEthProfit(interaction.options._hoistedOptions[0].value)
 				if (interaction.options._hoistedOptions.length > 1) {
 					var time = interaction.options._hoistedOptions[1].value

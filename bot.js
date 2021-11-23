@@ -7,19 +7,27 @@ import { DB } from './app/mailDB.js'
 import { Iotech, IotechDatabase } from './app/iotech.js'
 import jsdom 			from "jsdom"
 import dotenv from 'dotenv'
+import puppeteer from 'puppeteer';
+import cheerio from 'cheerio';
+
 
 dotenv.config();
 
-
 const consoleStamp = ConsoleStamp(console, '[HH:MM]')
 
-let bot, mail;
+let bot, mail, browser, IotechPage, ToriPage;
 
 const { JSDOM } = jsdom;
+
 
 const InitializeDatabase = (cb) => {
 	DB.init(cb);
 }
+
+const MinutesToMillisecond = (minutes) => {
+	return 60 * minutes * 1000;
+}
+
 
 const StartDiscordBot = async (callback) => {
 
@@ -31,10 +39,6 @@ const StartDiscordBot = async (callback) => {
 
 	});
 	bot.connect();
-}
-
-const MinutesToMillisecond = (minutes) => {
-	return 60 * minutes * 1000;
 }
 
 
@@ -61,7 +65,7 @@ async function GetMail() {
 	const messages = await mail.getMessages()
 	let newEntrys = 0;
 
-	messages.forEach(msg => {
+	messages.forEach(async msg => {
 
 		let dbObj = DB.get('mails', msg.id)
 
@@ -73,9 +77,11 @@ async function GetMail() {
 
 			const url = linkElements[0].href.split('?')[0]
 
-			let gpu = { name: "", url: url, image: "" }
+			const toriInfo = await GetToriPage(url)
 
-			imageElements.forEach((elem, idx) => {
+			let gpu = { name: "", url: url, image: "", price: toriInfo.price, desc: toriInfo.desc }
+
+			imageElements.forEach((elem) => {
 				gpu.name = elem.title;
 				gpu.image = elem.src
 			})
@@ -94,6 +100,17 @@ async function GetMail() {
 
 }
 
+const GetToriPage = async (url) => {
+	await ToriPage.goto(url)
+	const bodyHtml = await ToriPage.evaluate(() => document.documentElement.outerHTML);
+	const $ = cheerio.load(bodyHtml)
+
+	const price = $(".price").text();
+	const body 	= $(".body").text();
+
+	return { price: price.trim(), desc: body.trim() }
+}
+
 
 async function StartIotechDaemon() {
 
@@ -102,7 +119,7 @@ async function StartIotechDaemon() {
 		bot.shoutIotechTarjous(offerData)
 	}
 
-	await Iotech.initialize(async () => {
+	await Iotech.initialize(IotechPage, async () => {
 		console.log("iotech ready.")
 
 		setInterval(async () => {
@@ -113,24 +130,38 @@ async function StartIotechDaemon() {
 	})
 }
 
+
+async function test() {
+	browser = await puppeteer.launch();
+	ToriPage = await browser.newPage();
+
+	const toriInfo = await GetToriPage('https://www.tori.fi/paijat-hame/Asus_ROG_strix_GTX_1080_8gb_91379905.htm')
+	browser.close()
+}
+
+
 async function main() {
 
+	browser 	= await puppeteer.launch();
+	IotechPage 	= await browser.newPage();
+	ToriPage = await browser.newPage();
+
+	const toriInfo = await GetToriPage('https://www.tori.fi/paijat-hame/Asus_ROG_strix_GTX_1080_8gb_91379905.htm')
 	InitializeDatabase(async () => {
 		StartDiscordBot(async () => {
 			await StartMailDaemon();
 			await StartIotechDaemon();
 			process.on('SIGINT', function () {
 				DB.close();
-				Iotech.close();
 				IotechDatabase.close();
-				console.log("cleanup done.")
+				browser.close()
+				console.log("Cleanup done, exitting. ")
 				process.exit();
 			});
 
 		});
 	});
-
 }
-
+//test()
 main()
 

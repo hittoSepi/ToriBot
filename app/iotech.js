@@ -1,9 +1,7 @@
-/* global process */
-import puppeteer from 'puppeteer';
+
 import cheerio  from 'cheerio';
 import Loki from 'lokijs';
 
-let browser, page;
 
 const iotech_url = 'https://bbs.io-tech.fi'
 const blackfriday_tarjoukset_url = `${iotech_url}/forums/black-friday-tarjoukset.105/`;
@@ -62,14 +60,14 @@ const parseResults = async (html) => {
 const Iotech = {
 	db: IotechDatabase,
 	ready: false,
+	page: undefined,
+
 	newEntryCallback: function () { console.log("Empty callback.")},
 
-	initialize: async (cb = () => { }) => {
+	initialize: async (page, cb = () => { }) => {
 		console.log("IOTECH: Init")
+		Iotech.page = page
 		IotechDatabase.init(async function () {
-			browser = await puppeteer.launch();
-			page = await browser.newPage();
-
 			Iotech.ready = true;
 			cb();
 
@@ -79,8 +77,8 @@ const Iotech = {
 
 	hyvat_tarjoukset: async () => {
 		if (Iotech.ready) {
-			await page.goto(hyvat_tarjoukset_url);
-			const bodyHtml = await page.evaluate(() => document.documentElement.outerHTML);
+			await Iotech.page.goto(hyvat_tarjoukset_url);
+			const bodyHtml = await Iotech.page.evaluate(() => document.documentElement.outerHTML);
 			return await parseResults(bodyHtml)
 		}
 		return { error: "not ready" }
@@ -89,8 +87,8 @@ const Iotech = {
 	blackfriday_tarjoukset: async () => {
 		console.log("IoTech blackfriday_tarjoukset")
 		if (Iotech.ready) {
-			await page.goto(blackfriday_tarjoukset_url);
-			const bodyHtml = await page.evaluate(() => document.documentElement.outerHTML);
+			await Iotech.page.goto(blackfriday_tarjoukset_url);
+			const bodyHtml = await Iotech.page.evaluate(() => document.documentElement.outerHTML);
 			const results = await parseResults(bodyHtml)
 			let offers = [];
 
@@ -108,11 +106,6 @@ const Iotech = {
 			return offers;
 		}
 		return {error:"not ready"}
-
-	},
-	close: async () => {
-		console.log("Closing Iotech daemon..")
-		await browser.close();
 
 	}
 

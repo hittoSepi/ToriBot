@@ -8,7 +8,7 @@ import { StatsApi } from './../app/statsApi.js'
 import dotenv from 'dotenv'
 dotenv.config();
 
-const dev = true
+const dev = false
 
 const EthStats = new StatsApi(process.env.CPYPTOCOMPARE_API, "ETH", "EUR")
 
@@ -64,7 +64,9 @@ const createEmbedMessage = (data) => {
 	return new MessageEmbed().setColor('#f94f55')
 	.setTitle(data.name)
 	.setURL(data.url)
-		.setThumbnail('https://d11vpufrumhcpn.cloudfront.net/img/tori_logo.png')
+	.setThumbnail('https://d11vpufrumhcpn.cloudfront.net/img/tori_logo.png')
+	.addField('Hinta', data.price, true)
+	.setDescription(data.desc)
 	.setImage(data.image)
 	.setTimestamp()
 }

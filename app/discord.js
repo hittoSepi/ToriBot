@@ -61,12 +61,16 @@ const defaultDiscordOpts = {
 
 
 const createEmbedMessage = (data) => {
+
+	const price = data.price != undefined ? data.price : "0 €"
+	const desc = data.desc != undefined ? data.desc : "Ei kuvausta"
+
 	return new MessageEmbed().setColor('#f94f55')
 	.setTitle(data.name)
 	.setURL(data.url)
 	.setThumbnail('https://d11vpufrumhcpn.cloudfront.net/img/tori_logo.png')
-	.addField('Hinta', data.price, true)
-	.setDescription(data.desc)
+	.addField('Hinta', price, true)
+	.setDescription(desc)
 	.setImage(data.image)
 	.setTimestamp()
 }

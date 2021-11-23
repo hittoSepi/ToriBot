@@ -13,7 +13,7 @@ import cheerio from 'cheerio';
 
 dotenv.config();
 
-const consoleStamp = ConsoleStamp(console, '[HH:MM]')
+const consoleStamp = ConsoleStamp(console, '[HH:MM:ss]')
 
 let bot, mail, browser, IotechPage, ToriPage;
 
@@ -141,7 +141,7 @@ async function test() {
 
 
 async function main() {
-
+	console.log("Starting ToriBot...")
 	browser 	= await puppeteer.launch();
 	IotechPage 	= await browser.newPage();
 	ToriPage = await browser.newPage();

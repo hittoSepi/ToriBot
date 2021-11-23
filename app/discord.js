@@ -62,8 +62,8 @@ const defaultDiscordOpts = {
 
 const createEmbedMessage = (data) => {
 
-	const price = data.price != undefined ? data.price : "0 €"
-	const desc = data.desc != undefined ? data.desc : "Ei kuvausta"
+	const price = data.price.length > 0  ? data.price : "0 €"
+	const desc = data.desc.length > 0 ? data.desc : "Ei kuvausta"
 
 	return new MessageEmbed().setColor('#f94f55')
 	.setTitle(data.name)

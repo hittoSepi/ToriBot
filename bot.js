@@ -160,7 +160,7 @@ async function StartToriDaemon() {
 
 	setInterval(async function () {
 		await tori.Search(opts)
-	}, MinutesToMillisecond(1))
+	}, MinutesToMillisecond(2))
 
 	await tori.Search(opts)
 

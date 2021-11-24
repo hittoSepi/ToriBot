@@ -114,24 +114,6 @@ const defaultDiscordOpts = {
 	}]
 }
 
-
-const createEmbedMessage = (data) => {
-
-	const price = data.price.length > 0  ? data.price : "0 €"
-	const desc = data.desc.length > 0 ? data.desc : "Ei kuvausta"
-
-	return new MessageEmbed().setColor('#f94f55')
-	.setTitle(data.name)
-	.setURL(data.url)
-	.setThumbnail('https://d11vpufrumhcpn.cloudfront.net/img/tori_logo.png')
-	.addField('Hinta', price, true)
-	.setDescription(desc)
-	.setImage(data.image)
-	.setTimestamp()
-}
-
-
-
 const timespanToString = (timespan) => {
 	switch (timespan) {
 		case 'min':
@@ -148,6 +130,23 @@ const timespanToString = (timespan) => {
 			return 'vuoden'
 	}
 }
+
+
+const createEmbedMessage = (data) => {
+
+	const price = data.price.length > 0  ? data.price : "0 €"
+	const desc = data.desc.length > 0 ? data.desc : "Ei kuvausta"
+
+	return new MessageEmbed().setColor('#f94f55')
+	.setTitle(data.name)
+	.setURL(data.url)
+	.setThumbnail('https://d11vpufrumhcpn.cloudfront.net/img/tori_logo.png')
+	.addField('Hinta', price, true)
+	.setDescription(desc)
+	.setImage(data.image)
+	.setTimestamp()
+}
+
 
 const createProfitMessage = (data) => {
 	return new MessageEmbed().setColor('#037f55')
@@ -289,9 +288,8 @@ class Discord {
 					results = profit
 					results['mhs'] = mhs
 				}
-				//JSON.stringify(results)
-				const profitEmbed = createProfitMessage(results)
-				await interaction.reply({embeds:[profitEmbed]} );
+
+				await interaction.reply({ embeds: [ createProfitMessage(results) ] });
 			}
 		});
 

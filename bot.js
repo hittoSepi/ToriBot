@@ -15,7 +15,7 @@ dotenv.config();
 
 const consoleStamp = ConsoleStamp(console, '[HH:MM:ss]')
 
-let bot, mail, browser, IotechPage, ToriPage, ToriSearchPage;
+let bot, mail, tori, browser, IotechPage, ToriPage, ToriSearchPage;
 
 const { JSDOM } = jsdom;
 
@@ -133,42 +133,55 @@ async function StartIotechDaemon() {
 
 import { ToriSearch, Region, Category, SubCategory  } from './app/tori.js'
 
-async function test() {
-	browser = await puppeteer.launch();
-	ToriPage = await browser.newPage();
 
-	const tori = new ToriSearch(ToriPage)
-	const results = await tori.Search({
+async function StartToriDaemon() {
+
+	const opts = {
 		query: "",
 		region: Region.PaijatHame,
 		category: Category.Components,
 		subcategory: SubCategory.GPU,
-		limit: 5,
+		limit: 10,
+	}
+
+	tori = new ToriSearch(browser, {
+		saveResultsToDatabase: true,
+		database: {
+			filename: "tori.db",
+			collectionName: "tori"
+		},
+		newProductCallback: function (product) {
+			bot.shoutGPU(product)
+			console.log("NEW PRODUCT", product)
+		}
 	})
 
-	console.log(results)
-	//const toriInfo = await GetToriPage('https://www.tori.fi/paijat-hame/Asus_ROG_strix_GTX_1080_8gb_91379905.htm')
-	browser.close()
-}
+	await tori.init();
 
+	setInterval(function () {
+		await tori.Search(opts)
+	}, MinutesToMillisecond(1))
+
+	await tori.Search(opts)
+
+
+}
 
 async function main() {
 	console.log("Starting ToriBot...")
 	browser 	= await puppeteer.launch();
 	IotechPage 	= await browser.newPage();
-	ToriPage 	= await browser.newPage();
+	//ToriPage 	= await browser.newPage();
 	ToriSearchPage 	= await browser.newPage();
-
-	//const toriInfo = await GetToriPage('https://www.tori.fi/paijat-hame/Asus_ROG_strix_GTX_1080_8gb_91379905.htm')
-
 
 	InitializeDatabase(async () => {
 		StartDiscordBot(async () => {
-			await StartMailDaemon();
+			await StartToriDaemon();
 			await StartIotechDaemon();
 			process.on('SIGINT', function () {
 				DB.close();
 				IotechDatabase.close();
+				tori.close();
 				browser.close()
 				console.log("Cleanup done, exitting. ")
 				process.exit();
@@ -177,6 +190,6 @@ async function main() {
 		});
 	});
 }
-//test()
-main()
+
+//main()
 

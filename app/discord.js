@@ -8,7 +8,7 @@ import { StatsApi } from './../app/statsApi.js'
 import dotenv from 'dotenv'
 dotenv.config();
 
-const dev = true
+const dev = false
 
 const EthStats = new StatsApi(process.env.CPYPTOCOMPARE_API, "ETH", "EUR")
 

@@ -15,7 +15,7 @@ dotenv.config();
 
 const consoleStamp = ConsoleStamp(console, '[HH:MM:ss]')
 
-let bot, mail, browser, IotechPage, ToriPage;
+let bot, mail, browser, IotechPage, ToriPage, ToriSearchPage;
 
 const { JSDOM } = jsdom;
 
@@ -35,7 +35,8 @@ const StartDiscordBot = async (callback) => {
 		token: process.env.DISCORD_BOT_TOKEN,
 		clientID: process.env.DISCORD_CLIENT_ID,
 		channels: ["909912248724631602"],
-		connectedCallback: callback
+		connectedCallback: callback,
+		toriSearchPage: ToriSearchPage
 
 	});
 	bot.connect();
@@ -130,12 +131,23 @@ async function StartIotechDaemon() {
 	})
 }
 
+import { ToriSearch, Region, Category, SubCategory  } from './app/tori.js'
 
 async function test() {
 	browser = await puppeteer.launch();
 	ToriPage = await browser.newPage();
 
-	const toriInfo = await GetToriPage('https://www.tori.fi/paijat-hame/Asus_ROG_strix_GTX_1080_8gb_91379905.htm')
+	const tori = new ToriSearch(ToriPage)
+	const results = await tori.Search({
+		query: "",
+		region: Region.PaijatHame,
+		category: Category.Components,
+		subcategory: SubCategory.GPU,
+		limit: 5,
+	})
+
+	console.log(results)
+	//const toriInfo = await GetToriPage('https://www.tori.fi/paijat-hame/Asus_ROG_strix_GTX_1080_8gb_91379905.htm')
 	browser.close()
 }
 
@@ -144,9 +156,12 @@ async function main() {
 	console.log("Starting ToriBot...")
 	browser 	= await puppeteer.launch();
 	IotechPage 	= await browser.newPage();
-	ToriPage = await browser.newPage();
+	ToriPage 	= await browser.newPage();
+	ToriSearchPage 	= await browser.newPage();
 
-	const toriInfo = await GetToriPage('https://www.tori.fi/paijat-hame/Asus_ROG_strix_GTX_1080_8gb_91379905.htm')
+	//const toriInfo = await GetToriPage('https://www.tori.fi/paijat-hame/Asus_ROG_strix_GTX_1080_8gb_91379905.htm')
+
+
 	InitializeDatabase(async () => {
 		StartDiscordBot(async () => {
 			await StartMailDaemon();

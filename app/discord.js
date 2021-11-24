@@ -1,6 +1,6 @@
 /*global process*/
 
-import { Client, Intents, Constants, MessageEmbed } from 'discord.js';
+import { Client, Intents, MessageEmbed } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9'
 import { StatsApi } from './../app/statsApi.js'
@@ -8,7 +8,7 @@ import { StatsApi } from './../app/statsApi.js'
 import dotenv from 'dotenv'
 dotenv.config();
 
-const dev = false
+const dev = true
 
 const EthStats = new StatsApi(process.env.CPYPTOCOMPARE_API, "ETH", "EUR")
 
@@ -17,6 +17,7 @@ const defaultDiscordOpts = {
 	clientID: "<INSERT CLIENT ID HERE>",	// Discord client id
 	channels: [],
 	connectedCallback: function() {},
+
 	commands: [{
 		name: 'profit',
 		type: 1,
@@ -56,6 +57,58 @@ const defaultDiscordOpts = {
 						value: "year",
 					}
 				]
+			}
+		]
+	},
+	{
+		name: 'tori',
+		type: 1,
+		description: 'Tori.fi haku.',
+		options: [
+
+			{
+				name: "alue",
+				type: 3,
+				description: "Haun alue",
+				required: true,
+				choices: [
+					{
+						name: "Koko suomi",
+						value: "KokoSuomi",
+
+					}, {
+						name: "Päijät-häme",
+						value: "paijat-hame",
+
+				}]
+			},
+			{
+				name: "kategoria",
+				type: 3,
+				required: false,
+				description: "Kategoria",
+				choices: [{
+					name: "Komponentit",
+					value: "Components",
+				}]
+			},
+			{
+				name: "subkategoria",
+				type: 3,
+				required: false,
+				description: "Ali-Kategoria",
+				choices: [{
+					name: "Näytönohjaimet",
+					value: "GPU",
+				},{
+					name: "Prosessorit",
+					value: "CPU",
+				}]
+			}, {
+				name: "haku",
+				description: "Hakusana",
+				type: 3,
+				required: false,
 			}
 		]
 	}]

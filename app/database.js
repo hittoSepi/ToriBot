@@ -18,7 +18,6 @@ export class Database {
 			autosave: true,
 			autoload: true,
 			autoloadCallback: function () {
-				console.log("autoload")
 				let collection = loki.getCollection(_self.options.collectionName);
 				if (collection === null) {
 					collection = loki.addCollection(_self.options.collectionName);

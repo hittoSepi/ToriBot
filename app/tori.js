@@ -151,12 +151,29 @@ export class ToriSearch {
 		// Get all product items from page and and parse product urls
 		let urls = [];
 		$(".list_mode_thumb a").each(function (idx, el) {
-			urls.push($(el).attr('href'))
+			let id = $(el).attr('id');
+
+			if (id) {
+				id = id.split('_')[1]
+
+				if (_self.database != undefined) {
+					const exists = _self.database.exists({ id: id })
+
+					if (exists === false) {
+						urls.push({ href: $(el).attr('href'), id: id })
+					}
+				}
+				else {
+					urls.push({ href: $(el).attr('href'), id: id })
+				}
+			}
+
 		})
+
 
 		// Load product pages
 		for (let i = 0; i < Math.min(urls.length - 1, search.limit); i++) {
-			const resultData = await this.parseDataFromUrl(urls[i])
+			const resultData = await this.parseDataFromUrl(urls[i].href)
 			if(resultData != undefined)
 				this.results.data.push(resultData)
 		}
@@ -197,7 +214,9 @@ export class ToriSearch {
 	saveResultsToDatabase() {
 		const _self = this;
 		if (this.options.saveResultsToDatabase === true) {
-			console.log("[ToriSearch] Adding new items to database..")
+
+			if (this.results.data.length > 0)
+				console.log("[ToriSearch] Adding new items to database..")
 			this.results.data.forEach((result) => {
 				const exists = _self.database.exists({ id: result.id })
 				if (exists === false) {

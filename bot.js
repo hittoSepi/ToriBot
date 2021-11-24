@@ -176,7 +176,7 @@ async function main() {
 	InitializeDatabase(async () => {
 		StartDiscordBot(async () => {
 			await StartToriDaemon();
-			await StartIotechDaemon();
+			//await StartIotechDaemon();
 			process.on('SIGINT', function () {
 				DB.close();
 				IotechDatabase.close();

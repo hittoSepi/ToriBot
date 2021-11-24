@@ -3,3 +3,6 @@
 /node_modules
 /package-lock.json
 /toribot-service-account.json
+iotech.db
+tori.db
+mails.db

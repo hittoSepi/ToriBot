@@ -158,12 +158,11 @@ async function StartToriDaemon() {
 
 	await tori.init();
 
-	setInterval(function () {
+	setInterval(async function () {
 		await tori.Search(opts)
 	}, MinutesToMillisecond(1))
 
 	await tori.Search(opts)
-
 
 }
 
@@ -191,5 +190,5 @@ async function main() {
 	});
 }
 
-//main()
+main()
 

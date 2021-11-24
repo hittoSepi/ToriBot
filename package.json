@@ -2,13 +2,12 @@
 	"name": "toribot",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
+	"main": "bot.js",
 	"type": "module",
 	"sourceType": "module",
 	"scripts": {
-		"bot": "node bot.js",
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"lint": "eslint bot.js"
+		"start": "node bot.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "",
 	"license": "ISC",
@@ -29,8 +28,5 @@
 		"path": "^0.12.7",
 		"puppeteer": "^11.0.0",
 		"underscore": "^1.13.1"
-	},
-	"devDependencies": {
-		"eslint": "^8.2.0"
 	}
 }

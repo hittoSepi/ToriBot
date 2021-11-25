@@ -149,7 +149,7 @@ const createEmbedMessage = (data) => {
 		)
 		.setDescription(desc)
 		.setImage(data.image)
-		.setTimestamp(moment(data.date, "DD MMMM HH:mm", "fi").format('MM/DD/YYYY HH:mm'))
+		.setTimestamp(moment(data.date, "DD MMMM HH:mm", "fi").locale('fi').format('MM/DD/YYYY HH:mm'))
 }
 
 

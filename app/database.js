@@ -1,4 +1,6 @@
+
 import Loki from 'lokijs';
+import * as path from 'path';
 
 export class Database {
 	constructor(options) {
@@ -6,20 +8,23 @@ export class Database {
 
 		this.options = Object.assign({
 			collectionName: "collection",
-			filename: 		"database.db",
+			filename: "database.db",
+			path: "\\database\\",
 			verbose: 		false,
-			ready_callback: function () { console.log(`[Database] ${_self.options.collectionName} is ready.`) }
+			ready_callback: function () { console.log(`[Database-${_self.options.collectionName}] Ready.`) }
 		}, options)
 
-		console.log(`[Database] Loading ${JSON.stringify(this.options, true)}.`)
+		console.log(`[Database-${_self.options.collectionName}] Loading ${JSON.stringify(this.options, true)}.`)
+		const file = path.join(process.cwd(), path.join(this.options.path, this.options.filename))
+		console.log(`[Database-${_self.options.collectionName}] Using file '${file}'.`)
 
-
-		const loki = new Loki(this.options.filename, {
+		const loki = new Loki(file, {
 			autosave: true,
 			autoload: true,
 			autoloadCallback: function () {
 				let collection = loki.getCollection(_self.options.collectionName);
 				if (collection === null) {
+					console.warn(`[Database-${_self.options.collectionName}] Collection not found, creating new.`)
 					collection = loki.addCollection(_self.options.collectionName);
 				}
 				_self.collection = collection
@@ -29,6 +34,13 @@ export class Database {
 		this.db = loki
 		loki.on('loaded', () => {
 			_self.options.ready_callback();
+		})
+
+		loki.on('error', (error) => {
+			console.error(`[Loki ERR] ${error}`)
+		})
+		loki.on('warning', (warn) => {
+			console.warn(`[Loki WARN] ${warn}`)
 		})
 	}
 
@@ -46,8 +58,8 @@ export class Database {
 	}
 
 	close() {
-		console.log(`[Database] ${this.options.collectionName} close.`)
 		this.db.saveDatabase();
+		console.log(`[Database-${_self.options.collectionName}] ${this.options.collectionName} closed.`)
 	}
 }
 

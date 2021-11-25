@@ -25,6 +25,7 @@
 		"googleapis": "^91.0.0",
 		"jsdom": "^18.1.0",
 		"lokijs": "^1.5.12",
+		"moment": "^2.29.1",
 		"path": "^0.12.7",
 		"puppeteer": "^11.0.0",
 		"underscore": "^1.13.1"

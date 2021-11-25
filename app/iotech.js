@@ -1,6 +1,7 @@
 
 import cheerio  from 'cheerio';
 import Loki from 'lokijs';
+import * as path from 'path';
 
 
 const iotech_url = 'https://bbs.io-tech.fi'
@@ -10,8 +11,10 @@ const hyvat_tarjoukset_url = `${iotech_url}/forums/hyvaet-tarjoukset.100/`;
 
 const IotechDatabase = {
 	Database: undefined,
-	init: function (callback)  {
-		IotechDatabase.Database = new Loki('iotech.db', {
+	init: function (callback) {
+		const file = path.join(process.cwd(), path.join("\\database\\", "iotech.db"))
+
+		IotechDatabase.Database = new Loki(file, {
 			autoload: true,
 			autosave: true,
 			autoloadCallback: this.databaseInitialize,

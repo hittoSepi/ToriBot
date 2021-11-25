@@ -148,7 +148,8 @@ async function StartToriDaemon() {
 		saveResultsToDatabase: true,
 		database: {
 			filename: "tori.db",
-			collectionName: "tori"
+			collectionName: "tori",
+			path: "\\database\\"
 		},
 		newProductCallback: function (product) {
 			bot.shoutGPU(product)
@@ -173,7 +174,7 @@ async function main() {
 	//ToriPage 	= await browser.newPage();
 	ToriSearchPage 	= await browser.newPage();
 
-	InitializeDatabase(async () => {
+	//InitializeDatabase(async () => {
 		StartDiscordBot(async () => {
 			await StartToriDaemon();
 			await StartIotechDaemon();
@@ -187,7 +188,7 @@ async function main() {
 			});
 
 		});
-	});
+	//});
 }
 
 main()

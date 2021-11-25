@@ -1,8 +1,10 @@
+/* global dev*/
 import * as cheerio from 'cheerio';
 import { Database } from './database.js';
 
 const tori_url = 'https://www.tori.fi'
 
+const dev = false
 
 export const Category = {
 	Components: 5038,
@@ -160,6 +162,7 @@ export class ToriSearch {
 					const exists = _self.database.exists({ id: id })
 
 					if (exists === false) {
+
 						urls.push({ href: $(el).attr('href'), id: id })
 					}
 				}
@@ -170,9 +173,11 @@ export class ToriSearch {
 
 		})
 
+		console.log(urls)
 
 		// Load product pages
-		for (let i = 0; i < Math.min(urls.length - 1, search.limit); i++) {
+		for (let i = 0; i < Math.min(urls.length, search.limit-1); i++) {
+			console.log(`[ToriSearch] New ID(${urls[i].id}) found, parsing data..`)
 			const resultData = await this.parseDataFromUrl(urls[i].href)
 			if(resultData != undefined)
 				this.results.data.push(resultData)
@@ -219,9 +224,12 @@ export class ToriSearch {
 				console.log("[ToriSearch] Adding new items to database..")
 			this.results.data.forEach((result) => {
 				const exists = _self.database.exists({ id: result.id })
+
 				if (exists === false) {
-					console.log(`[ToriSearch] Saving new item: '${result.title}'.`)
-					_self.database.insert(result)
+					if (dev === false) {
+						console.log(`[ToriSearch] Saving new item: '${result.title}'.`)
+						_self.database.insert(result)
+					}
 					_self.options.newProductCallback(result)
 
 				}

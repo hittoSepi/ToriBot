@@ -4,6 +4,7 @@ import { Client, Intents, MessageEmbed } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9'
 import { StatsApi } from './../app/statsApi.js'
+import moment from 'moment'
 
 import dotenv from 'dotenv'
 dotenv.config();
@@ -137,14 +138,18 @@ const createEmbedMessage = (data) => {
 	const price = data.price.length > 0  ? data.price : "0 €"
 	const desc = data.desc.length > 0 ? data.desc : "Ei kuvausta"
 
-	return new MessageEmbed().setColor('#f94f55')
-	.setTitle(data.name)
-	.setURL(data.url)
-	.setThumbnail('https://d11vpufrumhcpn.cloudfront.net/img/tori_logo.png')
-	.addField('Hinta', price, true)
-	.setDescription(desc)
-	.setImage(data.image)
-	.setTimestamp()
+	return new MessageEmbed()
+		.setColor('#f94f55')
+		.setTitle(data.title)
+		.setURL(data.href)
+		.setThumbnail('https://d11vpufrumhcpn.cloudfront.net/img/tori_logo.png')
+		.addFields(
+			{ name: "Hinta", value: price, inline: true },
+			{ name: "Myyjä", value: data.seller, inline: true },
+		)
+		.setDescription(desc)
+		.setImage(data.image)
+		.setTimestamp(moment(data.date, "DD MMMM HH:mm", "fi").format('MM/DD/YYYY HH:mm'))
 }
 
 
@@ -272,28 +277,33 @@ class Discord {
 		this.client.on('interactionCreate', async interaction => {
 			if (!interaction.isCommand()) return;
 
-			if (interaction.commandName === 'profit') {
+			await CommandAction[interaction.commandName]()
 
-				const mhs = interaction.options._hoistedOptions[0].value
-				let results = { mhs: mhs, timespan: "" };
-				const profit = await EthStats.CalculateEthProfit(mhs)
-				if (interaction.options._hoistedOptions.length > 1) {
-					var time = interaction.options._hoistedOptions[1].value
-
-					results['EUR'] = profit['EUR'][time]
-					results['ETH'] = profit['ETH'][time]
-					results['timespan'] = time
-				}
-				else {
-					results = profit
-					results['mhs'] = mhs
-				}
-
-				await interaction.reply({ embeds: [ createProfitMessage(results) ] });
-			}
 		});
 
 		this.client.login(this.options.token);
+	}
+}
+
+const CommandAction = {
+	'profit': async function (interaction) {
+		const mhs = interaction.options._hoistedOptions[0].value
+		let results = { mhs: mhs, timespan: "" };
+		const profit = await EthStats.CalculateEthProfit(mhs)
+
+		if (interaction.options._hoistedOptions.length > 1) {
+			var time = interaction.options._hoistedOptions[1].value
+
+			results['EUR'] = profit['EUR'][time]
+			results['ETH'] = profit['ETH'][time]
+			results['timespan'] = time
+		}
+		else {
+			results = profit
+			results['mhs'] = mhs
+		}
+
+		await interaction.reply({ embeds: [createProfitMessage(results)] });
 	}
 }
 

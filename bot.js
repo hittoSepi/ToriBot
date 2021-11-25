@@ -149,7 +149,7 @@ async function StartToriDaemon() {
 		database: {
 			filename: "tori.db",
 			collectionName: "tori",
-			path: "\\database\\"
+			path: "/database/"
 		},
 		newProductCallback: function (product) {
 			bot.shoutGPU(product)

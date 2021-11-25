@@ -12,7 +12,7 @@ const hyvat_tarjoukset_url = `${iotech_url}/forums/hyvaet-tarjoukset.100/`;
 const IotechDatabase = {
 	Database: undefined,
 	init: function (callback) {
-		const file = path.join(process.cwd(), path.join("\\database\\", "iotech.db"))
+		const file = path.normalize(path.join(process.cwd(), path.join("\\database\\", "iotech.db")))
 
 		IotechDatabase.Database = new Loki(file, {
 			autoload: true,

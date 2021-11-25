@@ -15,7 +15,7 @@ export class Database {
 		}, options)
 
 		console.log(`[Database-${_self.options.collectionName}] Loading ${JSON.stringify(this.options, true)}.`)
-		const file = path.join(process.cwd(), path.join(this.options.path, this.options.filename))
+		const file = path.normalize(path.join(process.cwd(), path.join(this.options.path, this.options.filename)))
 		console.log(`[Database-${_self.options.collectionName}] Using file '${file}'.`)
 
 		const loki = new Loki(file, {

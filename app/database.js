@@ -9,7 +9,7 @@ export class Database {
 		this.options = Object.assign({
 			collectionName: "collection",
 			filename: "database.db",
-			path: "\\database\\",
+			path: "/database/",
 			verbose: 		false,
 			ready_callback: function () { console.log(`[Database-${_self.options.collectionName}] Ready.`) }
 		}, options)

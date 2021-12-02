@@ -203,12 +203,12 @@ export class ToriSearch {
 				const resultData = {
 					id,
 					href: url,
-					title: $('.topic h1').text().replaceAll('\n', '').replaceAll('\t', '').trim(),
-					price: $('.price span').text().length > 0 ? $('.price span').text().replaceAll('\n', '').replaceAll('\t', '').trim() : undefined,
+					title: $('.topic h1').text().replaceAll('\n', ' ').replaceAll('\t', ' ').trim(),
+					price: $('.price span').text().length > 0 ? $('.price span').text().replaceAll('\n', ' ').replaceAll('\t', ' ').trim() : undefined,
 					image: $('#main_image').attr('src'),
 					date: $('.tech_data .value').eq(1).text(),
-					desc: $(".body").text().replace('Lisätiedot', '').replaceAll('\n', '').replaceAll('\t', '').trim(),
-					seller: $("b.name").text().replaceAll('\n', '').replaceAll('\t', '').trim(),
+					desc: $(".body").text().replace('Lisätiedot', ' ').replaceAll('\n', ' ').replaceAll('\t', ' ').trim(),
+					seller: $("b.name").text().replaceAll('\n', ' ').replaceAll('\t', ' ').trim(),
 				}
 				return resultData
 			}

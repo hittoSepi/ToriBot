@@ -5,7 +5,7 @@ import * as path from 'path';
 
 
 const iotech_url = 'https://bbs.io-tech.fi'
-const blackfriday_tarjoukset_url = `${iotech_url}/forums/black-friday-tarjoukset.105/`;
+const blackfriday_tarjoukset_url = `${iotech_url}/forums/black-friday-tarjoukset.101/`;
 const hyvat_tarjoukset_url = `${iotech_url}/forums/hyvaet-tarjoukset.100/`;
 
 

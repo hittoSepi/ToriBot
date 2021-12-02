@@ -9,7 +9,7 @@ import moment from 'moment'
 import dotenv from 'dotenv'
 dotenv.config();
 
-const dev = false
+const dev = true
 
 const EthStats = new StatsApi(process.env.CPYPTOCOMPARE_API, "ETH", "EUR")
 
